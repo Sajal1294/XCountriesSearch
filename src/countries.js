@@ -1,93 +1,54 @@
 import React, { useEffect, useState } from "react";
+import "./countries.css";
 
-function Cards({ name, flag }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "4px",
-        justifyContent: "center",
-        alignItems: "center",
-        border: "1px solid black",
-        borderRadius: "5px",
-        textAlign: "center",
-        height: "200px",
-        width: "200px",
-      }}
-    >
-      <img
-        style={{
-          height: "100px",
-          width: "100px",
-        }}
-        src={flag}
-        alt={`Flag of ${name}`}
-      />
-      <h2>{name}</h2>
-    </div>
-  );
-}
-
-const API_ENDPOINT = "https://xcountries-backend.azurewebsites.net/all";
-
-function Counties() {
+const Countries = () => {
   const [countries, setCountries] = useState([]);
-  const [searchText, setSearchText] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const fetchCounty = async () => {
+    const fetchCountries = async () => {
       try {
-        const res = await fetch(API_ENDPOINT);
-        const res_json = await res.json();
-        setCountries(res_json);
+        const response = await fetch("https://restcountries.com/v3.1/all");
+        const data = await response.json();
+        setCountries(data);
       } catch (error) {
-        console.error("Error fetching data: " + error);
+        console.error("Error fetching countries:", error);
       }
     };
-    fetchCounty();
+
+    fetchCountries();
   }, []);
 
-  const filteredCountries = countries.filter((country) =>
-    country.name.toLowerCase().includes(searchText.toLowerCase())
+  const filteredCountries = countries.filter(
+    (country) =>
+      country.name?.common?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <>
-      <div style={{ padding: "20px" }}>
+    <div>
+      <div className="searchContainer">
         <input
           type="text"
           placeholder="Search for countries..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{
-            width: "100%",
-            maxWidth: "400px",
-            padding: "10px",
-            marginBottom: "20px",
-            fontSize: "16px",
-          }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "10px",
-          padding: "10px",
-        }}
-      >
-{filteredCountries.map(({ name, flag, abbr }, index) => (
-  <Cards
-    name={name}
-    flag={flag}
-    key={`${abbr || name}-${index}`} 
-  />
-))}
+      <div className="countriesGrid">
+        {filteredCountries.map((country, index) => (
+          <div className="countryCard" key={index}>
+            <img
+              src={country.flags?.png}
+              alt={`Flag of ${country.name?.common}`}
+              className="flagImage"
+            />
+            <p>{country.name?.common}</p>
+          </div>
+        ))}
       </div>
-    </>
+    </div>
   );
-}
+};
 
-export default Counties;
+export default Countries;
