@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./countries.css"; // Import CSS file
+import "./countries.css";
 
 function Cards({ name, flag }) {
   return (
@@ -18,6 +18,7 @@ function Countries() {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
+  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
@@ -25,6 +26,7 @@ function Countries() {
     return () => clearTimeout(timer);
   }, [query]);
 
+  // Fetch country data
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -40,10 +42,9 @@ function Countries() {
     fetchCountries();
   }, []);
 
+  // Partial, case-insensitive search
   const filteredCountries = countries.filter((country) =>
-    debouncedQuery.trim() === ""
-      ? true
-      : country.common.toLowerCase() === debouncedQuery.toLowerCase()
+    country.common.toLowerCase().includes(debouncedQuery.toLowerCase())
   );
 
   return (
